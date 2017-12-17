@@ -1794,6 +1794,23 @@ void MVM_interp_run(MVMThreadContext *tc, void (*initial_invoke)(MVMThreadContex
                     cur_op = bytecode_start + GET_UI32(cur_op, 2);
                 GC_SYNC_POINT(tc);
                 goto NEXT;
+            OP(deleted):
+                GET_REG(cur_op, 0).o = tc->instance->VMDeleted;
+                cur_op += 2;
+                goto NEXT;
+            OP(isdeleted): {
+                MVMObject *obj = GET_REG(cur_op, 2).o;
+                GET_REG(cur_op, 0).i64 = MVM_is_deleted(tc, obj);
+                cur_op += 4;
+                goto NEXT;
+            }
+            OP(ifnotnullordeleted):
+                if (MVM_is_null(tc, GET_REG(cur_op, 0).o) || MVM_is_deleted(tc, GET_REG(cur_op, 0).o))
+                    cur_op += 6;
+                else
+                    cur_op = bytecode_start + GET_UI32(cur_op, 2);
+                GC_SYNC_POINT(tc);
+                goto NEXT;
             OP(findmeth): {
                 /* Increment PC first, as we may make a method call. */
                 MVMRegister *res  = &GET_REG(cur_op, 0);
