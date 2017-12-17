@@ -1794,6 +1794,16 @@ void MVM_interp_run(MVMThreadContext *tc, void (*initial_invoke)(MVMThreadContex
                     cur_op = bytecode_start + GET_UI32(cur_op, 2);
                 GC_SYNC_POINT(tc);
                 goto NEXT;
+            OP(inactive):
+                GET_REG(cur_op, 0).o = tc->instance->VMInactive;
+                cur_op += 2;
+                goto NEXT;
+            OP(isinactive): {
+                MVMObject *obj = GET_REG(cur_op, 2).o;
+                GET_REG(cur_op, 0).i64 = MVM_is_inactive(tc, obj);
+                cur_op += 4;
+                goto NEXT;
+            }
             OP(findmeth): {
                 /* Increment PC first, as we may make a method call. */
                 MVMRegister *res  = &GET_REG(cur_op, 0);

@@ -596,7 +596,7 @@ void MVM_6model_bootstrap(MVMThreadContext *tc) {
     /* Now we've enough to actually create the REPR registry. */
     MVM_repr_initialize_registry(tc);
 
-    /* Create stub VMNull, BOOTInt, BOOTNum, BOOTStr, BOOTArray, BOOTHash,
+    /* Create stub VMNull, VMInactive, BOOTInt, BOOTNum, BOOTStr, BOOTArray, BOOTHash,
      * BOOTCCode, BOOTCode, BOOTThread, BOOTIter, BOOTContext, SCRef,
      * CallCapture, BOOTIO, BOOTException, BOOTQueue, BOOTAsync,
      * and BOOTReentrantMutex types. */
@@ -612,6 +612,7 @@ void MVM_6model_bootstrap(MVMThreadContext *tc) {
     } \
 } while (0)
     create_stub_boot_type(tc, MVM_REPR_ID_MVMNull, VMNull, 0, MVM_BOOL_MODE_NOT_TYPE_OBJECT);
+    create_stub_boot_type(tc, MVM_REPR_ID_MVMInactive, VMInactive, 0, MVM_BOOL_MODE_NOT_TYPE_OBJECT);
     create_stub_boot_type(tc, MVM_REPR_ID_P6int, boot_types.BOOTInt, 1, MVM_BOOL_MODE_UNBOX_INT);
     create_stub_boot_type(tc, MVM_REPR_ID_P6num, boot_types.BOOTNum, 1, MVM_BOOL_MODE_UNBOX_NUM);
     create_stub_boot_type(tc, MVM_REPR_ID_P6str, boot_types.BOOTStr, 1, MVM_BOOL_MODE_UNBOX_STR_NOT_EMPTY);
@@ -647,6 +648,7 @@ void MVM_6model_bootstrap(MVMThreadContext *tc) {
 } while (0)
     meta_objectifier(tc, VMString, "VMString");
     meta_objectifier(tc, VMNull, "VMNull");
+    meta_objectifier(tc, VMInactive, "VMInactive");
     meta_objectifier(tc, boot_types.BOOTInt, "BOOTInt");
     meta_objectifier(tc, boot_types.BOOTNum, "BOOTNum");
     meta_objectifier(tc, boot_types.BOOTStr, "BOOTStr");

@@ -418,6 +418,9 @@ struct MVMInstance {
     /* The VM null object. */
     MVMObject *VMNull;
 
+    /* The VM inactive object. */
+    MVMObject *VMInactive;
+
     /* Set of string constants. */
     MVMStringConsts str_consts;
 

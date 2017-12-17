@@ -247,11 +247,11 @@ static MVMuint64 zero_slots(MVMThreadContext *tc, MVMArrayBody *body,
     switch (slot_type) {
         case MVM_ARRAY_OBJ:
             while (elems < ssize)
-                body->slots.o[elems++] = NULL;
+                body->slots.o[elems++] = tc->instance->VMInactive;
             break;
         case MVM_ARRAY_STR:
             while (elems < ssize)
-                body->slots.s[elems++] = NULL;
+                body->slots.s[elems++] = tc->instance->VMInactive;
             break;
         case MVM_ARRAY_I64:
             while (elems < ssize)

@@ -89,6 +89,7 @@ typedef struct MVMNativeRefREPRData MVMNativeRefREPRData;
 typedef struct MVMNormalizer MVMNormalizer;
 typedef struct MVMNull MVMNull;
 typedef struct MVMNullBody MVMNullBody;
+typedef struct MVMInactive MVMInactive;
 typedef struct MVMCStr MVMCStr;
 typedef struct MVMCStrBody MVMCStrBody;
 typedef struct MVMCPointer MVMCPointer;
