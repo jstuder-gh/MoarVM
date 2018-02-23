@@ -27,6 +27,7 @@
 #define MVM_CCLASS_ALPHANUMERIC 2048
 #define MVM_CCLASS_NEWLINE      4096
 #define MVM_CCLASS_WORD         8192
+#define MVM_CCLASS_NBSP         16384
 
 /* Checks a string is not null or non-concrete and throws if so. */
 MVM_STATIC_INLINE void MVM_string_check_arg(MVMThreadContext *tc, const MVMString *s, const char *operation) {
