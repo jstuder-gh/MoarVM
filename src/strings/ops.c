@@ -2489,6 +2489,11 @@ static MVMint64 grapheme_is_cclass(MVMThreadContext *tc, MVMint64 cclass, MVMGra
                 MVM_UNICODE_PROPERTY_GENERAL_CATEGORY, UPV_Zl);
         }
 
+        case MVM_CCLASS_NBSP: {
+            return (cp == 0x00A0 || cp == 0x2007 || cp == 0x202F ||
+                    cp == 0x2060 || cp == 0xFEFF);
+        }
+
         default:
             return 0;
     }
