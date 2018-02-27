@@ -1676,6 +1676,48 @@ MVMString * MVM_string_decode_from_buf(MVMThreadContext *tc, MVMObject *buf, MVM
     return MVM_string_decode_from_buf_config(tc, buf, enc_name, NULL, MVM_ENCODING_PERMISSIVE);
 }
 
+MVMObject * MVM_string_words(MVMThreadContext *tc, MVMString *input, MVMint64 limit, MVMint64 nbsp) {
+    MVMObject *result = NULL;
+    MVMHLLConfig *hll = MVM_hll_current(tc);
+    MVMStringIndex start, end;
+
+    MVM_string_check_arg(tc, input, "words input");
+
+    MVMROOT2(tc, input, result, {
+        result = MVM_repr_alloc_init(tc, hll->slurpy_array_type);
+        start = 0;
+        end = MVM_string_graphs_nocheck(tc, input);
+
+        while (start < end) {
+            MVMString *portion;
+            MVMStringIndex index  = start;
+            MVMStringIndex length = 0;
+
+            if ( 0 <= limit && limit <= MVM_repr_elems(tc, result) ) break;
+
+            WS_SEARCH:
+            index = MVM_string_find_cclass(tc, MVM_CCLASS_WHITESPACE, input, index, end - index);
+            if ( nbsp && index < end && MVM_string_is_cclass(tc, MVM_CCLASS_NBSP, input, index) ) {
+                index++;
+                goto WS_SEARCH;
+            }
+
+            length = index - start;
+            if (0 < length) {
+                portion = MVM_string_substring(tc, input, start, length);
+                MVMROOT(tc, portion, {
+                    MVMObject *pobj = MVM_repr_alloc_init(tc, hll->str_box_type);
+                    MVM_repr_set_str(tc, pobj, portion);
+                    MVM_repr_push_o(tc, result, pobj);
+                });
+            }
+            start = MVM_string_find_not_cclass(tc, MVM_CCLASS_WHITESPACE, input, index, end - index);
+        }
+    });
+
+    return result;
+}
+
 MVMObject * MVM_string_split(MVMThreadContext *tc, MVMString *separator, MVMString *input) {
     MVMObject *result = NULL;
     MVMStringIndex start, end, sep_length;

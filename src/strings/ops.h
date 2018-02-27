@@ -93,6 +93,7 @@ MVMObject * MVM_string_encode_to_buf_config(MVMThreadContext *tc, MVMString *s, 
 MVMString * MVM_string_decode_from_buf(MVMThreadContext *tc, MVMObject *buf, MVMString *enc_name);
 MVMString * MVM_string_decode_from_buf_config(MVMThreadContext *tc, MVMObject *buf,
         MVMString *enc_name, MVMString *replacement, MVMint64 bitmap);
+MVMObject * MVM_string_words(MVMThreadContext *tc, MVMString *input, MVMint64 limit, MVMint64 nbsp);
 MVMObject * MVM_string_split(MVMThreadContext *tc, MVMString *separator, MVMString *input);
 MVMString * MVM_string_join(MVMThreadContext *tc, MVMString *separator, MVMObject *input);
 MVMint64 MVM_string_char_at_in_string(MVMThreadContext *tc, MVMString *a, MVMint64 offset, MVMString *b);

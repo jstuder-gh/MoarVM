@@ -5312,6 +5312,12 @@ void MVM_interp_run(MVMThreadContext *tc, void (*initial_invoke)(MVMThreadContex
                 GET_REG(cur_op, 0).i64 = MVM_proc_getppid(tc);
                 cur_op += 2;
                 goto NEXT;
+            OP(words):
+                GET_REG(cur_op, 0).o = MVM_string_words(tc,
+                    GET_REG(cur_op, 2).s, GET_REG(cur_op, 4).i64,
+                    GET_REG(cur_op, 6).i64);
+                cur_op += 8;
+                goto NEXT;
             OP(sp_guard): {
                 MVMObject *check = GET_REG(cur_op, 0).o;
                 MVMSTable *want  = (MVMSTable *)tc->cur_frame
