@@ -5316,6 +5316,10 @@ void MVM_interp_run(MVMThreadContext *tc, void (*initial_invoke)(MVMThreadContex
                 GET_REG(cur_op, 0).o = MVM_io_get_signals(tc);
                 cur_op += 2;
                 goto NEXT;
+            OP(getvmsignals):
+                GET_REG(cur_op, 0).o = MVM_io_get_vm_signals(tc);
+                cur_op += 2;
+                goto NEXT;
             OP(sp_guard): {
                 MVMObject *check = GET_REG(cur_op, 0).o;
                 MVMSTable *want  = (MVMSTable *)tc->cur_frame

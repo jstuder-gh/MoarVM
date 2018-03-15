@@ -277,6 +277,11 @@ MVMObject * MVM_io_get_signals(MVMThreadContext *tc) {
     return sig_hash;
 }
 
+MVMObject * MVM_io_get_vm_signals(MVMThreadContext *tc) {
+    /* getsignals and getvmsignals return the same hash, with potential to change in the future */
+    return MVM_io_get_signals(tc);
+}
+
 /* Register a new signal handler. */
 MVMObject * MVM_io_signal_handle(MVMThreadContext *tc, MVMObject *queue,
                                  MVMObject *schedulee, MVMint64 signal,
