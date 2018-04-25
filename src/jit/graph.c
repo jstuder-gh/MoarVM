@@ -812,6 +812,7 @@ static MVMint32 consume_reprop(MVMThreadContext *tc, MVMJitGraph *jg,
         case MVM_OP_getattrs_o:
         case MVM_OP_attrinited:
         case MVM_OP_hintfor:
+        case MVM_OP_slice:
             type_operand = ins->operands[1];
             break;
         case MVM_OP_box_i:
@@ -1190,6 +1191,32 @@ static MVMint32 consume_reprop(MVMThreadContext *tc, MVMJitGraph *jg,
                                          { MVM_JIT_REG_OBJBODY, invocant },
                                          { MVM_JIT_REG_VAL,     keyidx } };
                 jg_append_call_c(tc, jg, function, 5, args, MVM_JIT_RV_INT, dst);
+                MVM_jit_log(tc, "devirt: emitted a %s via consume_reprop\n", ins->info->name);
+                return 1;
+            }
+            case MVM_OP_slice: {
+                MVMint16 dst   = ins->operands[0].reg.orig;
+                MVMint16 src   = ins->operands[1].reg.orig;
+                MVMint16 start = ins->operands[2].reg.orig;
+                MVMint16 end   = ins->operands[3].reg.orig;
+
+                void *fn_slice = ((MVMObject*)type_facts->type)->st->REPR->pos_funcs.slice;
+
+                MVMJitCallArg root_args[] =  { { MVM_JIT_INTERP_VAR, MVM_JIT_INTERP_TC },
+                                               { MVM_JIT_REG_ADDR,    src   } };
+                MVMJitCallArg init_args[] =  { { MVM_JIT_INTERP_VAR, MVM_JIT_INTERP_TC },
+                                               { MVM_JIT_REG_VAL,     src   } };
+                MVMJitCallArg slice_args[] = { { MVM_JIT_INTERP_VAR, MVM_JIT_INTERP_TC },
+                                               { MVM_JIT_REG_STABLE,  src   },
+                                               { MVM_JIT_REG_VAL,     src   },
+                                               { MVM_JIT_REG_OBJBODY, src   },
+                                               { MVM_JIT_REG_VAL,     dst   },
+                                               { MVM_JIT_REG_VAL,     start },
+                                               { MVM_JIT_REG_VAL,     end   } };
+                jg_append_call_c(tc, jg, MVM_gc_root_temp_push, 2, root_args, MVM_JIT_RV_VOID, -1);
+                jg_append_call_c(tc, jg, MVM_repr_alloc_init, 2, init_args, MVM_JIT_RV_PTR, dst);
+                jg_append_call_c(tc, jg, fn_slice, 7, slice_args, MVM_JIT_RV_VOID, -1);
+                jg_append_call_c(tc, jg, MVM_gc_root_temp_pop, 1, root_args, MVM_JIT_RV_VOID, -1);
                 MVM_jit_log(tc, "devirt: emitted a %s via consume_reprop\n", ins->info->name);
                 return 1;
             }
@@ -2114,6 +2141,7 @@ static MVMint32 consume_ins(MVMThreadContext *tc, MVMJitGraph *jg,
     case MVM_OP_existskey:
     case MVM_OP_existspos:
     case MVM_OP_setelemspos:
+    case MVM_OP_slice:
     case MVM_OP_splice:
     case MVM_OP_atpos_i:
     case MVM_OP_atpos_n:
