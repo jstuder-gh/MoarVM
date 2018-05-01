@@ -130,6 +130,11 @@
                       (arglist (carg (tc) ptr)
                                (carg $0 ptr))))
 
+(template: iscont
+  (if (any (^vm_isnull $1) (zr (^getf (^stable $1) MVMSTable container_spec)) )
+    (const 0 int_sz)
+    (const 1 int_sz)))
+
 (template: decont!
     (ifv
          (any (zr $1)
@@ -193,6 +198,11 @@
       (carg $1 ptr)
       (carg (^body $1) ptr)) int_sz))
 
+(template: knowhow
+    (^get_instance_field KnowHOW))
+
+(template: knowhowattr
+    (^get_instance_field KnowHOWAttribute))
 
 #  REPR(obj)->pos_funcs.at_pos(tc, STABLE(obj), obj,
 #       OBJECT_BODY(obj), GET_REG(cur_op, 4).i64,
@@ -223,8 +233,68 @@
        (carg $0 ptr)
        (carg (const (&QUOTE MVM_reg_int64) int_sz) int))))
 
+(template: atpos_n!
+  (callv
+     (^getf (^repr $1) MVMREPROps pos_funcs.at_pos)
+     (arglist
+       (carg (tc) ptr)
+       (carg (^stable $1) ptr)
+       (carg $1 ptr)
+       (carg (^body $1) ptr)
+       (carg $2 int)
+       (carg $0 ptr)
+       (carg (const (&QUOTE MVM_reg_num64) int_sz) int))))
+
+(template: atpos_s!
+  (callv
+     (^getf (^repr $1) MVMREPROps pos_funcs.at_pos)
+     (arglist
+       (carg (tc) ptr)
+       (carg (^stable $1) ptr)
+       (carg $1 ptr)
+       (carg (^body $1) ptr)
+       (carg $2 int)
+       (carg $0 ptr)
+       (carg (const (&QUOTE MVM_reg_str) int_sz) int))))
+
 #  REPR(obj)->ass_funcs.at_key(tc, STABLE(obj), obj, OBJECT_BODY(obj),
 #       (MVMObject *)GET_REG(cur_op, 4).s, &GET_REG(cur_op, 0), MVM_reg_obj);
+(template: atkey_i!
+  (callv
+     (^getf (^repr $1) MVMREPROps ass_funcs.at_key)
+     (arglist
+       (carg (tc) ptr)
+       (carg (^stable $1) ptr)
+       (carg $1 ptr)
+       (carg (^body $1) ptr)
+       (carg $2 ptr)
+       (carg $0 ptr)
+       (carg (const (&QUOTE MVM_reg_int64) int_sz) int))))
+
+(template: atkey_n!
+  (callv
+     (^getf (^repr $1) MVMREPROps ass_funcs.at_key)
+     (arglist
+       (carg (tc) ptr)
+       (carg (^stable $1) ptr)
+       (carg $1 ptr)
+       (carg (^body $1) ptr)
+       (carg $2 ptr)
+       (carg $0 ptr)
+       (carg (const (&QUOTE MVM_reg_num64) int_sz) int))))
+
+(template: atkey_s!
+  (callv
+     (^getf (^repr $1) MVMREPROps ass_funcs.at_key)
+     (arglist
+       (carg (tc) ptr)
+       (carg (^stable $1) ptr)
+       (carg $1 ptr)
+       (carg (^body $1) ptr)
+       (carg $2 ptr)
+       (carg $0 ptr)
+       (carg (const (&QUOTE MVM_reg_str) int_sz) int))))
+
 (template: atkey_o!
   (ifv (^is_type_obj $1)
    (store $0 (^vmnull) ptr_sz)
@@ -248,6 +318,21 @@
         (carg $1 ptr)
         (carg (^body $1) ptr)
         (carg $2 ptr)) int_sz))
+
+(template: deletekey
+  (dov
+    (callv
+      (^getf (^repr $0) MVMREPROps ass_funcs.delete_key)
+        (arglist
+          (carg (tc) ptr)
+          (carg (^stable $0) ptr)
+          (carg $0 ptr)
+          (carg (^body $0) ptr)
+          (carg $1 ptr)))
+    (callv (^func &MVM_SC_WB_OBJ)
+      (arglist
+        (carg (tc) ptr)
+        (carg $0 ptr)))))
 
 (template: gethow
    (let: (($how (^getf (^stable $1) MVMSTable HOW)))
@@ -422,6 +507,33 @@
         (carg (tc) ptr)
         (carg $0 ptr)))))
 
+(template: splice
+  (callv (^getf (^repr $0) MVMREPROps pos_funcs.splice)
+    (arglist
+      (carg (tc) ptr)
+      (carg (^stable $0) ptr)
+      (carg $0 ptr)
+      (carg (^body $0) ptr)
+      (carg $1 ptr)
+      (carg $2 int)
+      (carg $3 int))))
+
+(template: existspos
+  (let: (
+      ($elems (call (^getf (^repr $1) MVMREPROps pos_funcs.elems)
+             (arglist
+                (carg (tc) ptr)
+                (carg (^stable $1) ptr)
+                (carg $1 ptr)
+                (carg (^body $1) ptr))))
+      ($index (if (lt $2 (const 0 int_sz)) (add $elems $2) $2))
+      ($val (call (^func MVM_repr_at_pos_o) (arglist (carg (tc) ptr) (carg $1 ptr) (carg $index int) )))
+    )
+    (if (all (le (const 0 int_sz) $index) (lt $index $elems) (zr (^vm_isnull $val)))
+      (const 1 int_sz)
+      (const 0 int_sz)
+    )))
+
 (template: eq_s
   (call (^func &MVM_string_equal)
     (arglist
@@ -475,6 +587,30 @@
       (carg (const 0 ptr_sz) ptr)
       (carg (const 0 ptr_sz) ptr)
       (carg (const 1 int_sz) int))))
+
+(template: bootint
+    (^get_instance_field boot_types.BOOTInt))
+
+(template: bootnum
+    (^get_instance_field boot_types.BOOTNum))
+
+(template: bootstr
+    (^get_instance_field boot_types.BOOTStr))
+
+(template: bootarray
+    (^get_instance_field boot_types.BOOTArray))
+
+(template: bootintarray
+    (^get_instance_field boot_types.BOOTIntArray))
+
+(template: bootnumarray
+    (^get_instance_field boot_types.BOOTNumArray))
+
+(template: bootstrarray
+    (^get_instance_field boot_types.BOOTStrArray))
+
+(template: boothash
+    (^get_instance_field boot_types.BOOTHash))
 
 (template: shift_i!
   (callv (^getf (^repr $1) MVMREPROps pos_funcs.shift)
@@ -561,6 +697,31 @@
     (arglist
       (carg (tc) ptr)
       (carg $1 ptr)) ptr_sz))
+
+(template: iterkey_s
+  (call (^func &MVM_iterkey_s)
+    (arglist
+      (carg (tc) ptr)
+      (carg $1 ptr)) ptr_sz))
+
+(template: iterval
+  (call (^func &MVM_iterval)
+    (arglist
+      (carg (tc) ptr)
+      (carg $1 ptr)) ptr_sz))
+
+(template: isinvokable
+  (let: (
+      ($invoke  (^getf (^stable $1) MVMSTable invoke))
+      ($invspec (^getf (^stable $1) MVMSTable invocation_spec))
+    )
+    (if (eq $invoke (^func MVM_6model_invoke_default))
+      (if (nz $invspec)
+        (const 1 int_sz)
+        (const 0 int_sz)
+      )
+      (const 1 int_sz)
+    )))
 
 (template: getdynlex
   (call (^func &MVM_frame_getdynlex)
@@ -772,7 +933,7 @@
    (flagval (zr $1)))
 
 (template: isnull
-   (or (flagval (zr $1)) (flagval (eq $1 (^vmnull)))))
+   (flagval (^vm_isnull $1)))
 
 (template: isint
    (if (all (nz $1) (eq (^getf (^repr $1) MVMREPROps ID) (const (&QUOTE MVM_REPR_ID_P6int) (&sizeof MVMuint32))))
