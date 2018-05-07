@@ -56,6 +56,8 @@
 (template: le_i (flagval (le $1 $2)))
 (template: gt_i (flagval (gt $1 $2)))
 (template: ge_i (flagval (ge $1 $2)))
+(template: cmp_i
+  (sub (flagval (gt $1 $2)) (flagval (lt $1 $2))))
 
 (template: add_i (add $1 $2))
 (template: sub_i (sub $1 $2))
@@ -692,6 +694,9 @@
 
 (template: const_i64_16 (copy $1))
 (template: const_i64_32 (copy $1))
+
+(template: isnonnull
+  (flagval (zr (^vm_isnull $1))))
 
 (template: lastexpayload
   (^getf (tc) MVMThreadContext last_payload))
