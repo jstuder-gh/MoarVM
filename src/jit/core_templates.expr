@@ -171,6 +171,16 @@
       (carg $1 ptr)
       (carg $2 ptr)) int_sz))
 
+(template: unicmp_s
+  (call (^func &MVM_unicode_string_compare)
+    (arglist
+      (carg (tc) ptr)
+      (carg $1 ptr)
+      (carg $2 ptr)
+      (carg $3 int)
+      (carg $4 int)
+      (carg $5 int)) int_sz))
+
 (template: eqat_s
   (call (^func &MVM_string_equal_at)
     (arglist
@@ -179,8 +189,48 @@
       (carg $2 ptr)
       (carg $3 int)) int_sz))
 
+(template: eqatic_s
+  (call (^func &MVM_string_equal_at_ignore_case)
+    (arglist
+      (carg (tc) ptr)
+      (carg $1 ptr)
+      (carg $2 ptr)
+      (carg $3 int)) int_sz))
+
+(template: eqaticim_s
+  (call (^func &MVM_string_equal_at_ignore_case_ignore_mark)
+    (arglist
+      (carg (tc) ptr)
+      (carg $1 ptr)
+      (carg $2 ptr)
+      (carg $3 int)) int_sz))
+
+(template: haveat_s
+  (call (^func &MVM_string_have_at)
+    (arglist
+      (carg (tc) ptr)
+      (carg $1 ptr)
+      (carg $2 int)
+      (carg $3 int)
+      (carg $4 ptr)
+      (carg $5 int)) int_sz))
+
 (template: concat_s
   (call (^func &MVM_string_concatenate)
+    (arglist
+      (carg (tc) ptr)
+      (carg $1 ptr)
+      (carg $2 ptr)) ptr_sz))
+
+(template: repeat_s
+  (call (^func &MVM_string_repeat)
+    (arglist
+      (carg (tc) ptr)
+      (carg $1 ptr)
+      (carg $2 int)) ptr_sz))
+
+(template: split
+  (call (^func &MVM_string_split)
     (arglist
       (carg (tc) ptr)
       (carg $1 ptr)
