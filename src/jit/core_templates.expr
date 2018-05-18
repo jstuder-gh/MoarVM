@@ -367,6 +367,26 @@
       (carg $1 ptr)
       (carg $2 int)) int_sz))
 
+(template: rindexfrom
+  (call (^func &MVM_string_index_from_end)
+    (arglist
+      (carg (tc) ptr)
+      (carg $1 ptr)
+      (carg $2 ptr)
+      (carg $3 int)) int_sz))
+
+(template: escape
+  (call (^func &MVM_string_escape)
+    (arglist
+      (carg (tc) ptr)
+      (carg $1 ptr)) ptr_sz))
+
+(template: flip
+  (call (^func &MVM_string_flip)
+    (arglist
+      (carg (tc) ptr)
+      (carg $1 ptr)) ptr_sz))
+
 (template: null (^vmnull))
 
 (template: isnull
