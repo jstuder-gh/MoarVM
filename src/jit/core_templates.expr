@@ -394,6 +394,47 @@
       (carg $0 ptr)
       (carg $1 int))))
 
+(template: iscclass
+  (call (^func &MVM_string_is_cclass)
+    (arglist
+      (carg (tc) ptr)
+      (carg $1 int)
+      (carg $2 ptr)
+      (carg $3 int)) int_sz))
+
+(template: findcclass
+  (call (^func &MVM_string_find_cclass)
+    (arglist
+      (carg (tc) ptr)
+      (carg $1 int)
+      (carg $2 ptr)
+      (carg $3 int)
+      (carg $4 int)) int_sz))
+
+(template: findnotcclass
+  (call (^func &MVM_string_find_not_cclass)
+    (arglist
+      (carg (tc) ptr)
+      (carg $1 int)
+      (carg $2 ptr)
+      (carg $3 int)
+      (carg $4 int)) int_sz))
+
+(template: nfafromstatelist
+  (call (^func &MVM_nfa_from_statelist)
+    (arglist
+      (carg (tc) ptr)
+      (carg $1 ptr)
+      (carg $2 ptr)) ptr_sz))
+
+(template: nfarunproto
+  (call (^func &MVM_nfa_run_proto)
+    (arglist
+      (carg (tc) ptr)
+      (carg $1 ptr)
+      (carg $2 ptr)
+      (carg $3 int)) ptr_sz))
+
 (template: null (^vmnull))
 
 (template: isnull
