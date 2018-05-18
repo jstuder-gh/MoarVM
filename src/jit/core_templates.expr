@@ -229,12 +229,143 @@
       (carg $1 ptr)
       (carg $2 int)) ptr_sz))
 
+(template: substr_s
+  (call (^func &MVM_string_substring)
+    (arglist
+      (carg (tc) ptr)
+      (carg $1 ptr)
+      (carg $2 int)
+      (carg $3 int)) ptr_sz))
+
+(template: index_s
+  (call (^func &MVM_string_index)
+    (arglist
+      (carg (tc) ptr)
+      (carg $1 ptr)
+      (carg $2 ptr)
+      (carg $3 int)) int_sz))
+
+(template: indexic_s
+  (call (^func &MVM_string_index_ignore_case)
+    (arglist
+      (carg (tc) ptr)
+      (carg $1 ptr)
+      (carg $2 ptr)
+      (carg $3 int)) int_sz))
+
+(template: indexicim_s
+  (call (^func &MVM_string_index_ignore_case_ignore_mark)
+    (arglist
+      (carg (tc) ptr)
+      (carg $1 ptr)
+      (carg $2 ptr)
+      (carg $3 int)) int_sz))
+
+(template: codes_s
+  (call (^func &MVM_string_codes)
+    (arglist
+      (carg (tc) ptr)
+      (carg $1 ptr)) int_sz))
+
+(template: getcp_s
+  (call (^func &MVM_string_get_grapheme_at)
+    (arglist
+      (carg (tc) ptr)
+      (carg $1 ptr)
+      (carg $2 int)) int_sz))
+
+(template: indexcp_s
+  (call (^func &MVM_string_index_of_grapheme)
+    (arglist
+      (carg (tc) ptr)
+      (carg $1 ptr)
+      (carg $2 int)) int_sz))
+
+(template: uc
+  (call (^func &MVM_string_uc)
+    (arglist
+      (carg (tc) ptr)
+      (carg $1 ptr)) ptr_sz))
+
+(template: lc
+  (call (^func &MVM_string_lc)
+    (arglist
+      (carg (tc) ptr)
+      (carg $1 ptr)) ptr_sz))
+
+(template: tc
+  (call (^func &MVM_string_tc)
+    (arglist
+      (carg (tc) ptr)
+      (carg $1 ptr)) ptr_sz))
+
 (template: split
   (call (^func &MVM_string_split)
     (arglist
       (carg (tc) ptr)
       (carg $1 ptr)
       (carg $2 ptr)) ptr_sz))
+
+(template: join
+  (call (^func &MVM_string_join)
+    (arglist
+      (carg (tc) ptr)
+      (carg $1 ptr)
+      (carg $2 ptr)) ptr_sz))
+
+(template: getcpbyname
+  (call (^func &MVM_unicode_lookup_by_name)
+    (arglist
+      (carg (tc) ptr)
+      (carg $1 ptr)) int_sz))
+
+(template: getstrfromname
+  (call (^func &MVM_unicode_string_from_name)
+    (arglist
+      (carg (tc) ptr)
+      (carg $1 ptr)) ptr_sz))
+
+(template: unipropcode
+  (call (^func &MVM_unicode_name_to_property_code)
+    (arglist
+      (carg (tc) ptr)
+      (carg $1 ptr)) int_sz))
+
+(template: unipvalcode
+  (call (^func &MVM_unicode_name_to_property_value_code)
+    (arglist
+      (carg (tc) ptr)
+      (carg $1 int)
+      (carg $2 ptr)) int_sz))
+
+(template: hasuniprop
+  (call (^func &MVM_string_offset_has_unicode_property_value)
+    (arglist
+      (carg (tc) ptr)
+      (carg $1 ptr)
+      (carg $2 int)
+      (carg $3 int)
+      (carg $4 int)) int_sz))
+
+(template: chars
+  (call (^func &MVM_string_graphs)
+    (arglist
+      (carg (tc) ptr)
+      (carg $1 ptr)) int_sz))
+
+(template: ordfirst
+  (call (^func &MVM_string_ord_at)
+    (arglist
+      (carg (tc) ptr)
+      (carg $1 ptr)
+      (carg (const 0 int_sz) int)) int_sz))
+
+(template: ordat
+  (call (^func &MVM_string_ord_at)
+    (arglist
+      (carg (tc) ptr)
+      (carg $1 ptr)
+      (carg $2 int)) int_sz))
 
 (template: null (^vmnull))
 
