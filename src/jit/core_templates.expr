@@ -555,6 +555,11 @@
   (let: (($who (^getf (^stable $1) MVMSTable WHO)))
   (if (nz $who) $who (^vmnull))))
 
+(template: reprname
+  (let: (($reprid   (^getf (^repr $1) MVMREPROps ID))
+         ($reprlist (^get_instance_field repr_list)))
+    (^getf (idx $reprlist $reprid ptr_sz) MVMReprRegistry name)))
+
 (template: eqaddr (flagval (eq $1 $2)))
 
 (template: box_i!
