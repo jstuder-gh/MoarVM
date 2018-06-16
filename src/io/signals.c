@@ -284,13 +284,8 @@ MVMObject * MVM_io_get_signals(MVMThreadContext *tc) {
     return sig_arr;
 }
 
-/* Register a new signal handler. */
-MVMObject * MVM_io_signal_handle(MVMThreadContext *tc, MVMObject *queue,
-                                 MVMObject *schedulee, MVMint64 signal,
-                                 MVMObject *async_type) {
-    MVMAsyncTask *task;
-    SignalInfo   *signal_info;
-    MVMInstance  * const instance = tc->instance;
+static int is_valid_sig(MVMThreadContext *tc, MVMint64 signal) {
+    MVMInstance * const instance = tc->instance;
 
     if ( !instance->valid_sigs ) {
         MVMint8 sig_wanted_vals[NUM_SIG_WANTED];
@@ -298,6 +293,19 @@ MVMObject * MVM_io_signal_handle(MVMThreadContext *tc, MVMObject *queue,
         populate_instance_valid_sigs(tc, sig_wanted_vals);
     }
     if ( signal <= 0 || !(instance->valid_sigs & SIG_SHIFT(signal) ) ) {
+        return 0;
+    }
+    return 1;
+}
+
+/* Register a new signal handler. */
+MVMObject * MVM_io_signal_handle(MVMThreadContext *tc, MVMObject *queue,
+                                 MVMObject *schedulee, MVMint64 signal,
+                                 MVMObject *async_type) {
+    MVMAsyncTask *task;
+    SignalInfo   *signal_info;
+
+    if ( !is_valid_sig(tc, signal) ) {
         MVM_exception_throw_adhoc(tc, "Unsupported signal handler %d",
             (int)signal);
     }
