@@ -326,6 +326,7 @@ static void * op_to_func(MVMThreadContext *tc, MVMint16 opcode) {
     case MVM_OP_getrusage: return MVM_proc_getrusage;
     case MVM_OP_cpucores: return MVM_platform_cpu_count;
     case MVM_OP_getsignals: return MVM_io_get_signals;
+    case MVM_OP_emitsignal: return MVM_io_signal_emit;
     case MVM_OP_sleep: return MVM_platform_sleep;
     case MVM_OP_getlexref_i32: case MVM_OP_getlexref_i16: case MVM_OP_getlexref_i8: case MVM_OP_getlexref_i: return MVM_nativeref_lex_i;
     case MVM_OP_getlexref_n32: case MVM_OP_getlexref_n: return MVM_nativeref_lex_n;
@@ -3093,6 +3094,16 @@ static MVMint32 consume_ins(MVMThreadContext *tc, MVMJitGraph *jg,
         MVMint16 dst = ins->operands[0].reg.orig;
         MVMJitCallArg args[] =  { { MVM_JIT_INTERP_VAR, { MVM_JIT_INTERP_TC } } };
         jg_append_call_c(tc, jg, op_to_func(tc, op), 1, args, MVM_JIT_RV_PTR, dst);
+        break;
+    }
+    case MVM_OP_emitsignal: {
+        MVMint16 dst = ins->operands[0].reg.orig;
+        MVMint16 pid = ins->operands[1].reg.orig;
+        MVMint16 sig = ins->operands[2].reg.orig;
+        MVMJitCallArg args[] =  { { MVM_JIT_INTERP_VAR, { MVM_JIT_INTERP_TC } },
+                                  { MVM_JIT_REG_VAL, pid },
+                                  { MVM_JIT_REG_VAL, sig } };
+        jg_append_call_c(tc, jg, op_to_func(tc, op), 3, args, MVM_JIT_RV_INT, dst);
         break;
     }
     case MVM_OP_sleep: {
