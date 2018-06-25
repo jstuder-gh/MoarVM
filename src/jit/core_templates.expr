@@ -137,12 +137,78 @@
       (carg (tc) ptr)
       (carg $1 ptr)) ptr_sz))
 
+(template: exception
+  (let: (($ah (^getf (tc) MVMThreadContext active_handlers)))
+    (if
+      (nz $ah)
+      (^getf $ah MVMActiveHandler ex_obj)
+      (^vmnull))))
+
+(template: bindexpayload!
+  (callv (^func &MVM_bind_exception_payload)
+    (arglist
+      (carg (tc) ptr)
+      (carg $0 ptr)
+      (carg $1 ptr))))
+
+(template: bindexcategory!
+  (callv (^func &MVM_bind_exception_category)
+    (arglist
+      (carg (tc) ptr)
+      (carg $0 ptr)
+      (carg $1 int))))
+
+(template: getexpayload
+  (call (^func &MVM_get_exception_payload)
+    (arglist
+      (carg (tc) ptr)
+      (carg $1 ptr)) ptr_sz))
+
+(template: getexcategory
+  (call (^func &MVM_get_exception_category)
+    (arglist
+      (carg (tc) ptr)
+      (carg $1 ptr)) int_sz))
+
 (template: die!
   (callv (^func &MVM_exception_die)
     (arglist
       (carg (tc) ptr)
       (carg $1 ptr)
       (carg $0 ptr))))
+
+(template: backtracestrings
+  (call (^func &MVM_exception_backtrace_strings)
+    (arglist
+      (carg (tc) ptr)
+      (carg $1 ptr)) ptr_sz))
+
+(template: usecapture
+  (call (^func &MVM_args_use_capture)
+    (arglist
+      (carg (tc)     ptr)
+      (carg (^frame) ptr)) ptr_sz))
+
+(template: savecapture
+  (call (^func &MVM_args_save_capture)
+    (arglist
+      (carg (tc)     ptr)
+      (carg (^frame) ptr)) ptr_sz))
+
+(template: multicacheadd
+  (call (^func &MVM_multi_cache_add)
+    (arglist
+      (carg (tc) ptr)
+      (carg $1   ptr)
+      (carg $2   ptr)
+      (carg $3   ptr)) ptr_sz))
+
+(template: multicachefind
+  (call (^func &MVM_multi_cache_find)
+    (arglist
+      (carg (tc) ptr)
+      (carg $1   ptr)
+      (carg $2   ptr)) ptr_sz))
 
 (template: null_s (const 0 ptr_sz))
 
@@ -549,6 +615,17 @@
       (carg $2 ptr)
       (carg $0 ptr))))
 
+(template: objprimspec
+  (if
+    (nz $1)
+    (^getf
+      (call (^getf (^repr $1) MVMREPROps get_storage_spec)
+        (arglist
+          (carg (tc) ptr)
+          (carg (^stable $1) ptr)) ptr_sz)
+      MVMStorageSpec boxed_primitive)
+    (const 0 int_sz)))
+
 (template: gethow
   (let: (($how (^getf (^stable $1) MVMSTable HOW)))
   (if (nz $how)
@@ -564,6 +641,8 @@
 (template: getwho
   (let: (($who (^getf (^stable $1) MVMSTable WHO)))
   (if (nz $who) $who (^vmnull))))
+
+(template: getwhere (copy $1))
 
 (template: eqaddr (flagval (eq $1 $2)))
 
@@ -961,6 +1040,25 @@
 
 (template: knowhow     (^get_instance_field KnowHOW))
 (template: knowhowattr (^get_instance_field KnowHOWAttribute))
+
+(template: newtype
+  (let: (($repr (call (^func &MVM_repr_get_by_name)
+                  (arglist
+                    (carg (tc) ptr)
+                    (carg $2   ptr)) ptr_sz)))
+    (call (^getf $repr MVMREPROps type_object_for)
+      (arglist
+        (carg (tc) ptr)
+        (carg $1   ptr)) ptr_sz)))
+
+(template: composetype
+  (do
+    (callv (^getf (^repr $1) MVMREPROps compose)
+      (arglist
+        (carg (tc)         ptr)
+        (carg (^stable $1) ptr)
+        (carg $2           ptr)))
+    (copy $1)))
 
 (template: istrue!
   (callv (^func &MVM_coerce_istrue)
