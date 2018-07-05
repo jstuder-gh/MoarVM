@@ -1348,6 +1348,238 @@
     (^getf $caller MVMFrame code_ref)
     (const 0 ptr_sz))))
 
+(template: add_I
+  (call (^func &MVM_bigint_add)
+    (arglist
+      (carg (tc) ptr)
+      (carg $3   ptr)
+      (carg $1   ptr)
+      (carg $2   ptr)) ptr_sz))
+
+(template: sub_I
+  (call (^func &MVM_bigint_sub)
+    (arglist
+      (carg (tc) ptr)
+      (carg $3   ptr)
+      (carg $1   ptr)
+      (carg $2   ptr)) ptr_sz))
+
+(template: mul_I
+  (call (^func &MVM_bigint_mul)
+    (arglist
+      (carg (tc) ptr)
+      (carg $3   ptr)
+      (carg $1   ptr)
+      (carg $2   ptr)) ptr_sz))
+
+(template: div_I
+  (call (^func &MVM_bigint_div)
+    (arglist
+      (carg (tc) ptr)
+      (carg $3   ptr)
+      (carg $1   ptr)
+      (carg $2   ptr)) ptr_sz))
+
+(template: mod_I
+  (call (^func &MVM_bigint_mod)
+    (arglist
+      (carg (tc) ptr)
+      (carg $3   ptr)
+      (carg $1   ptr)
+      (carg $2   ptr)) ptr_sz))
+
+(template: neg_I!
+  (let: (($res (call (^func &MVM_repr_alloc_init)
+                 (arglist
+                   (carg (tc) ptr)
+                   (carg $2   ptr)) ptr_sz)))
+    (dov
+      (store $0 $res ptr_sz)
+      (callv (^func &MVM_bigint_neg)
+        (arglist
+          (carg (tc) ptr)
+          (carg $0   ptr)
+          (carg $1   ptr))))))
+
+(template: abs_I!
+  (let: (($res (call (^func &MVM_repr_alloc_init)
+                 (arglist
+                   (carg (tc) ptr)
+                   (carg $2   ptr)) ptr_sz)))
+    (dov
+      (store $0 $res ptr_sz)
+      (callv (^func &MVM_bigint_abs)
+        (arglist
+          (carg (tc) ptr)
+          (carg $0   ptr)
+          (carg $1   ptr))))))
+
+(template: cmp_I
+  (call (^func &MVM_bigint_cmp)
+    (arglist
+      (carg (tc) ptr)
+      (carg $1   ptr)
+      (carg $2   ptr)) int_sz))
+
+(template: eq_I
+  (flagval
+    (zr
+      (call (^func &MVM_bigint_cmp)
+        (arglist
+          (carg (tc) ptr)
+          (carg $1   ptr)
+          (carg $2   ptr)) int_sz))))
+
+(template: ne_I
+  (flagval
+    (nz
+      (call (^func &MVM_bigint_cmp)
+        (arglist
+          (carg (tc) ptr)
+          (carg $1   ptr)
+          (carg $2   ptr)) int_sz))))
+
+(template: lt_I
+  (flagval
+    (eq
+      (const (&QUOTE MP_LT) int_sz)
+      (call (^func &MVM_bigint_cmp)
+        (arglist
+          (carg (tc) ptr)
+          (carg $1   ptr)
+          (carg $2   ptr)) int_sz))))
+
+(template: le_I
+  (flagval
+    (ne
+      (const (&QUOTE MP_GT) int_sz)
+      (call (^func &MVM_bigint_cmp)
+        (arglist
+          (carg (tc) ptr)
+          (carg $1   ptr)
+          (carg $2   ptr)) int_sz))))
+
+(template: gt_I
+  (flagval
+    (eq
+      (const (&QUOTE MP_GT) int_sz)
+      (call (^func &MVM_bigint_cmp)
+        (arglist
+          (carg (tc) ptr)
+          (carg $1   ptr)
+          (carg $2   ptr)) int_sz))))
+
+(template: ge_I
+  (flagval
+    (ne
+      (const (&QUOTE MP_LT) int_sz)
+      (call (^func &MVM_bigint_cmp)
+        (arglist
+          (carg (tc) ptr)
+          (carg $1   ptr)
+          (carg $2   ptr)) int_sz))))
+
+(template: bor_I
+  (call (^func &MVM_bigint_or)
+    (arglist
+      (carg (tc) ptr)
+      (carg $3   ptr)
+      (carg $1   ptr)
+      (carg $2   ptr)) ptr_sz))
+
+(template: bxor_I
+  (call (^func &MVM_bigint_xor)
+    (arglist
+      (carg (tc) ptr)
+      (carg $3   ptr)
+      (carg $1   ptr)
+      (carg $2   ptr)) ptr_sz))
+
+(template: band_I
+  (call (^func &MVM_bigint_and)
+    (arglist
+      (carg (tc) ptr)
+      (carg $3   ptr)
+      (carg $1   ptr)
+      (carg $2   ptr)) ptr_sz))
+
+(template: bnot_I
+  (call (^func &MVM_bigint_not)
+    (arglist
+      (carg (tc) ptr)
+      (carg $2   ptr)
+      (carg $1   ptr)) ptr_sz))
+
+(template: blshift_I
+  (call (^func &MVM_bigint_shl)
+    (arglist
+      (carg (tc) ptr)
+      (carg $3   ptr)
+      (carg $1   ptr)
+      (carg $2   int)) ptr_sz))
+
+(template: brshift_I
+  (call (^func &MVM_bigint_shr)
+    (arglist
+      (carg (tc) ptr)
+      (carg $3   ptr)
+      (carg $1   ptr)
+      (carg $2   int)) ptr_sz))
+
+(template: pow_I
+  (call (^func &MVM_bigint_pow)
+    (arglist
+      (carg (tc) ptr)
+      (carg $1   ptr)
+      (carg $2   ptr)
+      (carg $3   ptr)
+      (carg $4   ptr)) ptr_sz))
+
+(template: gcd_I
+  (call (^func &MVM_bigint_gcd)
+    (arglist
+      (carg (tc) ptr)
+      (carg $3   ptr)
+      (carg $1   ptr)
+      (carg $2   ptr)) ptr_sz))
+
+(template: lcm_I
+  (call (^func &MVM_bigint_lcm)
+    (arglist
+      (carg (tc) ptr)
+      (carg $3   ptr)
+      (carg $1   ptr)
+      (carg $2   ptr)) ptr_sz))
+
+(template: expmod_I!
+  (let: (($res (call (^func &MVM_repr_alloc_init)
+                 (arglist
+                   (carg (tc) ptr)
+                   (carg $4   ptr)) ptr_sz)))
+    (dov
+      (store $0 $res ptr_sz)
+      (callv (^func &MVM_bigint_expmod)
+        (arglist
+          (carg (tc) ptr)
+          (carg $0   ptr)
+          (carg $1   ptr)
+          (carg $2   ptr)
+          (carg $3   ptr))))))
+
+(template: isprime_I
+  (call (^func &MVM_bigint_is_prime)
+    (arglist
+      (carg (tc) ptr)
+      (carg $1   ptr)
+      (carg $2   int)) int_sz))
+
+(template: rand_I
+  (call (^func &MVM_bigint_rand)
+    (arglist
+      (carg (tc) ptr)
+      (carg $2   ptr)
+      (carg $1   ptr)) ptr_sz))
+
 (template: coerce_sI
   (call (^func &MVM_coerce_sI)
     (arglist
