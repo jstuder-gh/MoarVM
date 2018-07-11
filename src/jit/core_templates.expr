@@ -1753,6 +1753,21 @@
       (carg $1   ptr)
       (carg $2   ptr)) ptr_sz))
 
+(template: inf
+  (call (^func &MVM_num_posinf)
+    (arglist
+      (carg (tc) ptr)) num_sz))
+
+(template: neginf
+  (call (^func &MVM_num_neginf)
+    (arglist
+      (carg (tc) ptr)) num_sz))
+
+(template: nan
+  (call (^func &MVM_num_nan)
+    (arglist
+      (carg (tc) ptr)) num_sz))
+
 (template: assertparamcheck!
   (when (zr $0)
     (callv (^func &MVM_args_bind_failed)
