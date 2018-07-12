@@ -685,6 +685,16 @@
       (carg $2 ptr)
       (carg $0 ptr))))
 
+(template: objprimspec
+  (if (nz $1)
+    (^getf
+      (call (^getf (^repr $1) MVMREPROps get_storage_spec)
+        (arglist
+          (carg (tc) ptr)
+          (carg (^stable $1) ptr)) ptr_sz)
+      MVMStorageSpec boxed_primitive)
+    (const 0 int_sz)))
+
 (template: gethow
   (let: (($how (^getf (^stable $1) MVMSTable HOW)))
   (if (nz $how)
