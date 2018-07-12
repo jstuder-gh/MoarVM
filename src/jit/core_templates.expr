@@ -2070,6 +2070,32 @@
       (carg (tc) ptr)
       (carg $1   ptr)) int_sz))
 
+(template: objprimbits
+  (if (nz $1)
+    (let: (($ss
+            (call (^getf (^repr $1) MVMREPROps get_storage_spec)
+              (arglist
+                (carg (tc) ptr)
+                (carg (^stable $1) ptr)) ptr_sz)))
+      (if
+        (nz (^getf $ss MVMStorageSpec boxed_primitive))
+        (^getf $ss MVMStorageSpec bits)
+        (const 0 int_sz)))
+    (const 0 int_sz)))
+
+(template: objprimunsigned
+  (if (nz $1)
+    (let: (($ss
+            (call (^getf (^repr $1) MVMREPROps get_storage_spec)
+              (arglist
+                (carg (tc) ptr)
+                (carg (^stable $1) ptr)) ptr_sz)))
+      (if
+        (eq (^getf $ss MVMStorageSpec boxed_primitive) (const 1 int_sz))
+        (^getf $ss MVMStorageSpec is_unsigned)
+        (const 0 int_sz)))
+    (const 0 int_sz)))
+
 (template: unicmp_s
   (call (^func &MVM_unicode_string_compare)
     (arglist
