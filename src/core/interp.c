@@ -1011,8 +1011,10 @@ void MVM_interp_run(MVMThreadContext *tc, void (*initial_invoke)(MVMThreadContex
                 cur_op += 4;
                 goto NEXT;
             OP(param_rp_o): {
+                MVMArgInfo arg_info;
                 MVMuint16 arg_idx = GET_UI16(cur_op, 2);
-                MVMObject *param = MVM_args_get_required_pos_obj(tc, &tc->cur_frame->params, arg_idx);
+                MVMObject *param = MVM_args_get_required_pos_obj(tc, &tc->cur_frame->params, &arg_info, arg_idx);
+                param = arg_info.arg.o;
                 GET_REG(cur_op, 0).o = param;
                 if (MVM_spesh_log_is_logging(tc))
                     MVM_spesh_log_parameter(tc, arg_idx, param);
