@@ -534,3 +534,38 @@ void MVM_box_uint(MVMThreadContext *tc, MVMuint64 value, MVMObject *type,
     REPR(box)->box_funcs.set_uint(tc, STABLE(box), box, OBJECT_BODY(box), value);
     dst->o = box;
 }
+
+/* Create a VMArray from Range's start and end values */
+MVMObject * MVM_range_Ii(MVMThreadContext *tc, MVMint64 start, MVMint64 end, MVMint64 step,
+                          MVMint64 exclude_start, MVMint64 exclude_end, MVMint64 isbig)
+{
+    MVMHLLConfig *hll  = MVM_hll_current(tc);
+    MVMObject    *type = isbig ? tc->instance->boot_types.BOOTArray
+                               : tc->instance->boot_types.BOOTIntArray;
+    MVMObject    *res  = MVM_repr_alloc_init(tc, type);
+    MVMint64 i, v, elems;
+
+    if (step <= 0)   MVM_exception_throw_adhoc(tc, "MVM_range_Ii: Cannot have step of 0 or less");
+    if (end < start) MVM_exception_throw_adhoc(tc, "MVM_range_Ii: End cannot be less than start");
+
+    elems = end + 1 - start;
+    elems = elems / step + (elems % step == 0 ? 0 : 1)
+            - (exclude_start ? 1 : 0)
+            - (exclude_end && (end - start) % step == 0 ? 1 : 0 );
+
+    REPR(res)->pos_funcs.set_elems(tc, STABLE(res), res, OBJECT_BODY(res), elems < 0 ? 0 : elems);
+    MVMROOT(tc, res, {
+        for (i = 0, v = start; i < elems && v <= end; v += step) {
+            if (v == start && exclude_start) continue;
+
+            if (isbig) {
+                MVM_repr_bind_pos_o(tc, res, i, MVM_repr_box_int(tc, hll->int_box_type, v));
+            }
+            else {
+                MVM_repr_bind_pos_i(tc, res, i, v);
+            }
+            i++;
+        }
+    });
+    return res;
+}

@@ -5329,6 +5329,18 @@ void MVM_interp_run(MVMThreadContext *tc, void (*initial_invoke)(MVMThreadContex
                 MVM_spesh_plugin_addguard_notobj(tc, GET_REG(cur_op, 0).o, GET_REG(cur_op, 2).o);
                 cur_op += 4;
                 goto NEXT;
+            OP(range_i):
+                GET_REG(cur_op, 0).o = MVM_range_Ii(tc, GET_REG(cur_op, 2).i64,
+                    GET_REG(cur_op, 4).i64, GET_REG(cur_op, 6).i64, GET_REG(cur_op, 8).i64,
+                    GET_REG(cur_op, 10).i64, 0);
+                cur_op += 12;
+                goto NEXT;
+            OP(range_I):
+                GET_REG(cur_op, 0).o = MVM_range_Ii(tc, GET_REG(cur_op, 2).i64,
+                    GET_REG(cur_op, 4).i64, GET_REG(cur_op, 6).i64, GET_REG(cur_op, 8).i64,
+                    GET_REG(cur_op, 10).i64, 1);
+                cur_op += 12;
+                goto NEXT;
             OP(sp_guard): {
                 MVMObject *check = GET_REG(cur_op, 2).o;
                 MVMSTable *want  = (MVMSTable *)tc->cur_frame
