@@ -545,17 +545,27 @@ MVMObject * MVM_range_Ii(MVMThreadContext *tc, MVMint64 start, MVMint64 end, MVM
     MVMObject    *res  = MVM_repr_alloc_init(tc, type);
     MVMint64 i, v, elems;
 
-    if (step <= 0)   MVM_exception_throw_adhoc(tc, "MVM_range_Ii: Cannot have step of 0 or less");
-    if (end < start) MVM_exception_throw_adhoc(tc, "MVM_range_Ii: End cannot be less than start");
+    if (!step)   MVM_exception_throw_adhoc(tc, "MVM_range_Ii: Cannot have step of 0");
 
-    elems = end + 1 - start;
-    elems = elems / step + (elems % step == 0 ? 0 : 1)
-            - (exclude_start ? 1 : 0)
-            - (exclude_end && (end - start) % step == 0 ? 1 : 0 );
+    /* If end and step signs don't match, we can't produce anything */
+    if ( step < 0 && start < end || 0 < step && end < start ) elems = 0;
+    else {
+        MVMint64 larger, smaller;
+        elems = abs(start) < abs(end)
+                ? end < 0
+                  ? (larger = -1 * end) + 1 - (smaller = -1 * start)
+                  : (larger = end)      + 1 - (smaller = start)
+                : start < 0
+                  ? (larger = -1 * start) + 1 - (smaller = -1 * end)
+                  : (larger = start)      + 1 - (smaller = end);
+        elems = elems / abs(step) + (elems % step == 0 ? 0 : 1)
+                - (exclude_start ? 1 : 0)
+                - (exclude_end && (larger - smaller) % step == 0 ? 1 : 0 );
+    }
 
     REPR(res)->pos_funcs.set_elems(tc, STABLE(res), res, OBJECT_BODY(res), elems < 0 ? 0 : elems);
     MVMROOT(tc, res, {
-        for (i = 0, v = start; i < elems && v <= end; v += step) {
+        for (i = 0, v = start; i < elems; v += step) {
             if (v == start && exclude_start) continue;
 
             if (isbig) {
