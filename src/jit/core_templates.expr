@@ -2310,6 +2310,28 @@
       (carg \$0 ptr)
       (carg (const (&QUOTE MVM_reg_uint64) int_sz) int))))
 
+(template: range_i
+  (call (^func &MVM_range_Ii)
+    (arglist
+      (carg (tc) ptr)
+      (carg $1   int)
+      (carg $2   int)
+      (carg $3   int)
+      (carg $4   int)
+      (carg $5   int)
+      (carg (const 0 int_sz) int)) ptr_sz))
+
+(template: range_I
+  (call (^func &MVM_range_Ii)
+    (arglist
+      (carg (tc) ptr)
+      (carg $1   int)
+      (carg $2   int)
+      (carg $3   int)
+      (carg $4   int)
+      (carg $5   int)
+      (carg (const 1 int_sz) int)) ptr_sz))
+
 (template: sp_resolvecode
   (call (^func &MVM_frame_resolve_invokee_spesh)
     (arglist
