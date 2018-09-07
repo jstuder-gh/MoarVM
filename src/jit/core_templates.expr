@@ -71,12 +71,52 @@
                      (carg (const (&QUOTE MVM_reg_obj) int_sz) int)) ptr_sz)))
     (if (nz $found) (load $found ptr_sz) (^vmnull))))
 
+(template: bindlex_ni
+  (callv (^func &MVM_frame_bind_lexical_by_name)
+    (arglist
+      (carg (tc) ptr)
+      (carg (^cu_string $0) ptr)
+      (carg (const (&QUOTE MVM_reg_int64) int_sz) int)
+      (carg \$1 ptr))))
+
+(template: bindlex_nn
+  (callv (^func &MVM_frame_bind_lexical_by_name)
+    (arglist
+      (carg (tc) ptr)
+      (carg (^cu_string $0) ptr)
+      (carg (const (&QUOTE MVM_reg_num64) int_sz) int)
+      (carg \$1 ptr))))
+
+(template: bindlex_ns
+  (callv (^func &MVM_frame_bind_lexical_by_name)
+    (arglist
+      (carg (tc) ptr)
+      (carg (^cu_string $0) ptr)
+      (carg (const (&QUOTE MVM_reg_str) int_sz) int)
+      (carg \$1 ptr))))
+
+(template: bindlex_no
+  (callv (^func &MVM_frame_bind_lexical_by_name)
+    (arglist
+      (carg (tc) ptr)
+      (carg (^cu_string $0) ptr)
+      (carg (const (&QUOTE MVM_reg_obj) int_sz) int)
+      (carg \$1 ptr))))
+
 (template: getdynlex
   (call (^func &MVM_frame_getdynlex)
     (arglist
       (carg (tc) ptr)
       (carg $1 ptr)
       (carg (^caller) ptr)) ptr_sz))
+
+(template: binddynlex
+  (callv (^func &MVM_frame_binddynlex)
+    (arglist
+      (carg (tc) ptr)
+      (carg $0   ptr)
+      (carg $1   ptr)
+      (carg (^caller) ptr))))
 
 (template: return_o
   (dov
@@ -152,6 +192,13 @@
 
 (template: param_rp_o
   (call (^func &MVM_args_get_required_pos_obj)
+    (arglist
+      (carg (tc) ptr)
+      (carg (^params) ptr)
+      (carg $1 int)) ptr_sz))
+
+(template: param_sp
+  (call (^func &MVM_args_slurpy_positional)
     (arglist
       (carg (tc) ptr)
       (carg (^params) ptr)
@@ -459,6 +506,15 @@
       (carg $2 ptr)) int_sz))
 
 (template: hasuniprop
+  (call (^func &MVM_string_offset_has_unicode_property_value)
+    (arglist
+      (carg (tc) ptr)
+      (carg $1 ptr)
+      (carg $2 int)
+      (carg $3 int)
+      (carg $4 int)) int_sz))
+
+(template: hasunipropc
   (call (^func &MVM_string_offset_has_unicode_property_value)
     (arglist
       (carg (tc) ptr)
