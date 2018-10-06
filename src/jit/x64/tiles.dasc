@@ -593,7 +593,10 @@ MVM_JIT_TILE_DECL(not_reg) {
 MVM_JIT_TILE_DECL(lshift_reg) {
     MVMint8 reg[2];
     ensure_two_operand_pre(tc, compiler, tile, reg);
-    | sal Rq(reg[0]), reg[1];
+    | mov rax, rcx;
+    | mov cl, Rb(reg[1]);
+    | sal Rq(reg[0]), cl;
+    | mov rcx, rax;
     ensure_two_operand_post(tc, compiler, tile, reg);
 }
 
@@ -612,7 +615,10 @@ MVM_JIT_TILE_DECL(lshift_const) {
 MVM_JIT_TILE_DECL(rshift_reg) {
     MVMint8 reg[2];
     ensure_two_operand_pre(tc, compiler, tile, reg);
-    | sar Rq(reg[0]), reg[1];
+    | mov rax, rcx;
+    | mov cl, Rb(reg[1]);
+    | sar Rq(reg[0]), cl;
+    | mov rcx, rax;
     ensure_two_operand_post(tc, compiler, tile, reg);
 }
 
